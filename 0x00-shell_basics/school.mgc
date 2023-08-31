@@ -1,3 +1,4 @@
 #!/bin/bash
 school.mgc
 0 string SCHOOL School data
+file -m school.mgc school.mgc1
