@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-# let http.server module do it for us.
-sudo python3 -m http.server --directory /usr/share/nginx/html 80 > /dev/null 2>&1 &
+# Configure nginx and stop service
+sudo sed -i 's/8080 default_server/80 default_server/g' /etc/nginx/sites-enabled/default
+sudo service nginx restart
+sudo rm /var/run/nginx.pid
