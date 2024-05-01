@@ -1,21 +1,26 @@
-# Install nginx with puppet
-package { 'nginx':
-  ensure => 'installed',
+# This manifest installs ngix and adds redirect page
+
+package {'nginx':
+  ensure => present,
+  name   => 'nginx',
 }
 
-
-file { '/var/www/html/index.html':
-  ensure  => 'file',
+file {'/var/www/html/index.html':
+  ensure  => present,
+  path    => '/var/www/html/index.html',
   content => 'Hello World!',
-  mode    => '0644',
-  require => Package['nginx'],
 }
 
-exec { 'append_redirect_me':
-  command => "/usr/bin/sed -i '/^}$/i \\\n\tlocation \\/redirect_me {return 301 https:\\/\\/www.youtube.com\\/watch?v=QH2-TGUlwu4;}' /etc/nginx/sites-available/default",
+file_line { 'redirect_me':
+  ensure => present,
+  path   => '/etc/nginx/sites-available/default',
+  after  => 'listen 80 default_server;',
+  line   => 'rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;',
+}
 
 service { 'nginx':
-  ensure  => 'running',
-  enable  => true,
-  require => Package['nginx'],
+  ensure     => running,
+  hasrestart => true,
+  require    => Package['nginx'],
+  subscribe  => File_line['redirect_me'],
 }
