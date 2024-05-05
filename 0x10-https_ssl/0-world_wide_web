@@ -1,25 +1,12 @@
 #!/usr/bin/env bash
-# add the subdomain lb-01, www, web-01, web-02
+#Double the number of webservers
 
-# print output
-Print() {
-    local subdomains=("$@")
-    local domain="${subdomains[-1]}"
-    for ((i = 0; i < ${#subdomains[@]} - 1; i++)); do
-        dig_output=$(dig "${subdomains[$i]}.$domain")
-        RECORD_TYPE=$(echo "$dig_output" | awk '/^;; ANSWER SECTION:$/,/^$/ {if ($1 == domain_name) {print $4}}' domain_name="${subdomains[$i]}.$domain.")
-        DESTINATION=$(echo "$dig_output" | awk '/^;; ANSWER SECTION:$/,/^$/ {if ($1 == domain_name) {print $5}}' domain_name="${subdomains[$i]}.$domain.")
-        echo "The subdomain ${subdomains[$i]} is a $RECORD_TYPE record and points to $DESTINATION"
-    done
-}
-
-
-if [ $# -ne 0 ]; then
-    domain="$1"
-    if [ $# -eq 1 ]; then
-        Print "www" "lb-01" "web-01" "web-02" "$domain"
-    else
-        subdomain="$2"
-        Print "$subdomain" "$domain"
-    fi
+if [ "$#" -eq 1 ]; then
+    echo "$(dig www.$1 | awk '/ANSWER SECTION:/ {getline; print "The subdomain www is a "$4" record and points to "$5}')"
+    echo "$(dig lb-01.$1 | awk '/ANSWER SECTION:/ {getline; print "The subdomain lb-01 is a "$4" record and points to "$5}')"
+    echo "$(dig web-01.$1 | awk '/ANSWER SECTION:/ {getline; print "The subdomain web-01 is a "$4" record and points to "$5}')"
+    echo "$(dig web-02.$1 | awk '/ANSWER SECTION:/ {getline; print "The subdomain web-02 is a "$4" record and points to "$5}')"
+elif [ "$#" -eq 2 ]; then
+    subdomain=$2
+    echo "$(dig $subdomain.$1 | awk '/ANSWER SECTION:/ {getline; print "The subdomain '"$subdomain"' is a "$4" record and points to "$5}')"
 fi
