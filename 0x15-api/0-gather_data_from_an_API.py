@@ -17,7 +17,8 @@ if __name__ == '__main__':
             Todos = requests.get('{}/todos'.format(REST_API)).json()
             Empolyee_name = Users.get('name')
             Number_tasks = list(filter(lambda x: x.get('userId') == id, Todos))
-            completed_tasks = list(filter(lambda x: x.get('completed'), Number_tasks))
+            completed_tasks = list(filter(lambda x: x.get('completed'),
+                                          Number_tasks))
             print(
                 'Employee {} is done with tasks({}/{}):'.format(
                     Empolyee_name,
